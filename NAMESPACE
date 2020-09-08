@@ -1,0 +1,12 @@
+exportPattern("^[[:alpha:]]+")
+
+import(
+  lme4,
+  Matrix,
+  mvtnorm,
+  dplyr
+)
+
+importFrom("stats", "formula", "lm", "model.frame", "model.matrix",
+             "predict", "quantile", "residuals", "rnorm", "sigma",
+             "weights")
