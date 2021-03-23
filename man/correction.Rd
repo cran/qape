@@ -8,7 +8,7 @@
 correction(model)
 }
 
-\arguments{ \item{model}{ \emph{lmer}) object.
+\arguments{ \item{model}{ \emph{lmer} object.
 }
 }
 
@@ -26,6 +26,9 @@ Tomasz Zadlo}
 library(lme4)
 data(invData)
 attach(invData)
-model=lmer(investments~newly_registered+((newly_registered)|NUTS4))
+model <- lmer(investments ~ newly_registered + ((1|NUTS2) + 
+((newly_registered - 1)|NUTS2) + ((newly_registered)|NUTS4)))
 correction(model)
+
+detach(invData)
 }

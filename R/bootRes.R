@@ -1,97 +1,157 @@
 bootRes <-
-function(predictor, B, p, correction) {
-    
-    if (class(predictor) != 'EBLUP' & class(predictor) != 'plugInLMM'& class(predictor) != 'ebpLMMne') {
-      stop("wrong predictor")
-    }
-    if (B < 1) { 
-    stop("B1 must be > 0")
-  	}
-    N <- nrow(predictor$reg)
-    if (correction == F){
-      BB = 1
-      Ysim <- matrix(data = NA, ncol = B, nrow = N) 
-
-      while(BB <= B){
-      tablwzl <- lwzl(ranef(predictor$mEst), predictor$reg)$tablwzl
+  function(predictor, B, p, correction) {
+    N <- nrow(predictor$X)
+    YsimF <- function(...) {
       
-      dfeS <- data.frame(nrw = 1:nrow(predictor$regS),
+     tablsrswrRe <-
+        srswrRe(ranef(predictor$mEst), predictor$reg)$tablsrswrRe
+      dfeS <-
+        data.frame(nrw = 1:nrow(predictor$regS),
                    predictor$regS,
                    eS = predictor$eS)
+      dfesamp <- dfeS[sample(nrow(dfeS), N, replace = T),]
       
-      dfesamp=dfeS[sample(nrow(dfeS),N,replace=T),] 
-      
-      
+      vsample <- tablsrswrRe$ranef
+      names(vsample) <- tablsrswrRe$refNames
+     
+      #step 1
+      return(predictor$Xbeta + predictor$Z %*% as.matrix(vsample[colnames(predictor$Z)]) + dfesamp$eS)
+    }
     
-      Ysim[ ,BB] <- predictor$Xbeta + predictor$Z%*%tablwzl$ranef + dfesamp$eS
-      BB <- BB + 1
-        }
-      } 
-    else {
-      BB = 1
-      Ysim <- matrix(data = NA, ncol = B, nrow = N) 
-
-      while(BB <= B){
+    YsimT <- function(...) {
       lranefKorekta <- corrRanef(predictor$mEst)
-      
-      tablwzlKorekta <- lwzl(lranefKorekta, predictor$reg)$tablwzl
+      tablwzlKorekta <-
+        srswrRe(lranefKorekta, predictor$reg)$tablsrswrRe
       eSKorekta <- corrRancomp(predictor$mEst)
-      dfeSKorekta <- data.frame(nrw = 1:nrow(predictor$regS), predictor$regS, eSKorekta)
+      dfeSKorekta <-
+        data.frame(nrw = 1:nrow(predictor$regS), predictor$regS, eSKorekta)
+      dfesampKorekta <-
+        dfeSKorekta[sample(dfeSKorekta$nrw, N, replace = T), ]
       
-      dfesampKorekta=dfeSKorekta[sample(dfeSKorekta$nrw,N,replace=T),] 
+      vsampleKorekta <- tablwzlKorekta$ranef
+      names(vsampleKorekta) <- tablwzlKorekta$refNames
+      as.matrix(vsampleKorekta[colnames(predictor$Z)])
       
-     Ysim[ ,BB] <- predictor$Xbeta + predictor$Z%*%tablwzlKorekta$ranef + dfesampKorekta$eSKorekta
-     BB <- BB + 1
-      }
-  }
+      
+      #step 2
+      return(
+        predictor$Xbeta + predictor$Z %*%  as.matrix(vsampleKorekta[colnames(predictor$Z)]) + dfesampKorekta$eSKorekta
+      )
+    }
     
-    YsimS <- Ysim [predictor$con == 1, ]
+    if (class(predictor) != 'EBLUP' &
+        class(predictor) != 'plugInLMM' & class(predictor) != 'ebpLMMne') {
+      stop("wrong predictor")
+    }
+      if (B < 1) {
+      stop("B1 must be > 0")
+    }
+    
+    if (correction == F) {
+      Ysim <- matrix(replicate(B, YsimF(predictor)), ncol = B)
+    }
+    else {
+      Ysim <- matrix(replicate(B, YsimT(predictor)), ncol = B)
+    }
+    
+    #step 3
+    YsimS <- matrix(Ysim[predictor$con == 1,], ncol = B)
     
     class <- class(predictor)
+    
+    #step 4
     if (class == 'EBLUP') {
       thetaSim <- sapply(1:B, function(i)
         as.numeric(as.vector(predictor$gamma) %*% Ysim[, i]))
-        
+      
       predictorSim <- sapply(1:B, function(i) {
-        thetaPeBLUP <- as.numeric(EBLUP(YsimS[ ,i], predictor$fixed.part, predictor$random.part, predictor$reg, predictor$con, predictor$gamma, predictor$weights)$thetaP)
+        thetaPeBLUP <-
+          as.numeric(
+            EBLUP(
+              YsimS[, i],
+              predictor$fixed.part,
+              predictor$random.part,
+              predictor$reg,
+              predictor$con,
+              predictor$gamma,
+              predictor$weights,
+              estMSE = FALSE
+            )$thetaP
+          )
         return(thetaPeBLUP)
       })
     }
     
     if (class == 'plugInLMM') {
-      if(is.null(predictor$backTrans)){
-        predictor$backTrans <- function(x) x
+      if (is.null(predictor$backTrans)) {
+        predictor$backTrans <- function(x)
+          x
       }
       
-      thetaSim <- sapply(1:B, function(i) as.numeric(predictor$thetaFun(predictor$backTrans(Ysim[,i])))) 
+      thetaSim <-
+        sapply(1:B, function(i)
+          as.numeric(predictor$thetaFun(predictor$backTrans(Ysim[, i])))) #
       
       predictorSim <- sapply(1:B, function(i) {
-          thetaPplugin<-as.numeric(plugInLMM(YsimS[, i], predictor$fixed.part, predictor$random.part, 
-          predictor$reg, predictor$con, predictor$weights, predictor$backTrans, predictor$thetaFun)$thetaP)
+        thetaPplugin <-
+          as.numeric(
+            plugInLMM(
+              YsimS[, i],
+              predictor$fixed.part,
+              predictor$random.part,
+              predictor$reg,
+              predictor$con,
+              predictor$weights,
+              predictor$backTrans,
+              predictor$thetaFun
+            )$thetaP
+          )
         
         return(thetaPplugin)
-          
-      }) 
+        
+      })
     }
     
     if (class == 'ebpLMMne') {
-      if(is.null(predictor$backTrans)){
-        predictor$backTrans <- function(x) x
+      if (is.null(predictor$backTrans)) {
+        predictor$backTrans <- function(x)
+          x
       }
-      thetaSim <- sapply(1:B, function(i) as.numeric(predictor$thetaFun(predictor$backTrans(Ysim[,i])))) 
+      thetaSim <-
+        sapply(1:B, function(i)
+          as.numeric(predictor$thetaFun(predictor$backTrans(Ysim[, i])))) #
       predictorSim <- sapply(1:B, function(i) {
-        thetaPebp<-as.numeric(ebpLMMne(YsimS[, i], predictor$fixed.part, predictor$division, predictor$reg, 
-                                       predictor$con, predictor$backTrans, predictor$thetaFun, predictor$L)$thetaP )
+        thetaPebp <-
+          as.numeric(
+            ebpLMMne(
+              YsimS[, i],
+              predictor$fixed.part,
+              predictor$division,
+              predictor$reg,
+              predictor$con,
+              predictor$backTrans,
+              predictor$thetaFun,
+              predictor$L
+            )$thetaP
+          )
         return(thetaPebp)
       })
     }
-         
-    error <- matrix((predictorSim - thetaSim),ncol=B) 
     
-    return(list(
-      estQAPE = sapply(1:nrow(error), function(i) quantile(abs(error[i,]), probs = p)),
-      estRMSE = sapply(1:nrow(error), function(i) sqrt((sum(error[i,]^2))/length(error[i,]))), 
-      predictorSim = predictorSim, thetaSim = thetaSim, Ysim = Ysim 
-      
-    ))
+    error <- matrix((predictorSim - thetaSim), ncol = B)
+    
+    return(
+      list(
+        estQAPE = sapply(1:nrow(error), function(i)
+          quantile(abs(error[i, ]), probs = p)),
+        estRMSE = sapply(1:nrow(error), function(i)
+          sqrt((sum(
+            error[i, ] ^ 2
+          )) / length(error[i, ]))),
+        predictorSim = predictorSim,
+        thetaSim = thetaSim,
+        Ysim = Ysim,
+        error = error
+      )
+    )
   }

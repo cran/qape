@@ -4,10 +4,10 @@
 Empirical Best Linear Unbiased Predictor
 }
 \description{
-The function computes the value of the EBLUP of the linear combination of the variable of interest under linear mixed model estimated using REML.
+The function computes the value of the EBLUP of the linear combination of the variable of interest under the linear mixed model estimated using REML.
 }
 \usage{
-EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights)
+EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights, estMSE)
 }
 
 \arguments{
@@ -21,13 +21,15 @@ EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights)
 }
   \item{con}{the population 0-1 vector with 1s for elements in the sample and 0s for elements which are not in the sample.
 }
-  \item{gamma}{the population vector which transpose multiplied by the population vector of the variable of interest gives the predicted characteristic. For example, if \emph{gamma} is the population vector on 1s, the sum of the values of the variable of interest in the whole dataset is predicted.  
+  \item{gamma}{the population vector which transpose multiplied by the population vector of the variable of interest gives the predicted characteristic. For example, if \emph{gamma} is the population vector of 1s, the sum of the values of the variable of interest in the whole dataset is predicted.  
 }
   \item{weights}{the population vector of weights, defined as in \emph{lmer} object, allowing to include heteroscedasticity of random components in the mixed linear model.  
 }
+  \item{estMSE}{logical. If TRUE, the naive MSE estimator and its components are computed.  
+}
 }
 
-\details{The function computes the value of the EBLUP of the linear combination of the variable of interest based on the formula (21) in Zadlo (2017) (see Remark 5.1 in the paper for further explanations). Predicted values for unsampled population elements in subsets for which random effects are not observed in the sample are computed based only on fixed effects.
+\details{The function computes the value of the EBLUP of the linear combination of the variable of interest based on the formula (21) in Zadlo (2017) (see Remark 5.1 in the paper for further explanations). Predicted values for unsampled population elements in subsets for which random effects are not observed in the sample are computed based only on fixed effects. The naive MSE estimator of the EBLUP, which is the sum of two components given by equations (31) and (32) in Zadlo (2017) p. 8094, where unknown parameters are replaced by their REML estimates, is also computed. The naive MSE estimator ignores the variability of EBLUP resulting from the estimation of variance components.
 }
 \value{
 The function returns a list with the following objects:
@@ -49,14 +51,20 @@ The function returns a list with the following objects:
         \item{gamma}{the population vector which transpose multiplied by the population vector of the variable of interest gives the predicted characteristic.}
         \item{gammaS}{the subvector of \emph{gamma} for sampled elements.}
         \item{gammaR}{the subvector of \emph{gamma} for population elements which are not observed in the sample.}
-        \item{weights}{the population vector of weigts, defined as in \emph{lmer} object, allowing to include the heteroscedasticity of random components in the mixed linear model.}
+        \item{weights}{the population vector of weights, defined as in \emph{lmer} object, allowing to include the heteroscedasticity of random components in the mixed linear model.}
         \item{Z}{the population model matrix of auxiliary variables associated with random effects.}
+        \item{ZBlockNames}{labels of blocks of random effects in Z matrix.}
         \item{X}{the population model matrix of auxiliary variables associated with fixed effects.}
         \item{ZS}{the submatrix of Z matrix where the number of rows equals the number of sampled elements and the number of columns equals the number of estimated random effects.}
         \item{XR}{the submatrix of X matrix (with the same number of columns) for population elements which are not observed in the sample.}
         \item{ZR}{the submatrix of Z matrix where the number of rows equals the number of population elements which are not observed in the sample and the number of columns equals the number of estimated random effects.}
         \item{eS}{the sample vector of estimated random components.}
         \item{vS}{the estimated vector of random effects.}
+        \item{g1}{the first component of the naive MSE estimator 
+        (computed if \emph{estMSE = TRUE}).}
+        \item{g2}{the second component of the naive MSE estimator 
+        (computed if \emph{estMSE = TRUE}).}
+        \item{neMSE}{the naive MSE estimator (computed if \emph{estMSE = TRUE}).}
 }
 \references{
 1. Henderson, C.R. (1950) Estimation of Genetic Parameters (Abstract). Annals of Mathematical Statistics 21, 309-310. \cr
@@ -67,7 +75,6 @@ The function returns a list with the following objects:
 Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 \examples{
-
 library(lme4)
 library(Matrix)
 
@@ -75,74 +82,77 @@ library(Matrix)
 ### Prediction of the subpopulation mean based on the cross-sectional data
 
 data(invData) 
-#data from one period are considered: 
-invData2018<-invData[invData$year == 2018,] 
+# data from one period are considered: 
+invData2018 <- invData[invData$year == 2018,] 
 attach(invData2018)
 
-N=nrow(invData2018) #population size
-n=100 # sample size
-#subpopulation of interest: NUTS4type==2
-Nd=sum(NUTS4type==2) #subpopulation size
+N <- nrow(invData2018) # population size
+n <- 100 # sample size
+# subpopulation of interest: NUTS4type==2
+Nd <- sum(NUTS4type == 2) # subpopulation size
 
 set.seed(123456)
-sampled_elements=sample(N,n)
-con=rep(0,N)
-con[sampled_elements]=1 #elements in the sample
-YS=investments[sampled_elements]
+sampled_elements <- sample(N,n)
+con <- rep(0,N)
+con[sampled_elements] <- 1 # elements in the sample
+YS <- investments[sampled_elements]
 fixed.part <- 'newly_registered'
-random.part <- '(newly_registered| NUTS2)' 
-reg=invData2018[, - which(names(invData2018) == 'investments')]
+random.part <- '(1| NUTS2)' 
+reg = invData2018[, -which(names(invData2018) == 'investments')]
 
-gamma=rep(0,N)
-gamma[NUTS4type==2]=1/Nd
+gamma <- rep(0,N)
+gamma[NUTS4type == 2] <- 1/Nd
 
-weights=rep(1,N) #homoscedastic random components
+weights <- rep(1,N) # homoscedastic random components
+estMSE <- TRUE 
 
-#Predicted value of the mean in the following subpopulation: NUTS4type==2
-EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights)$thetaP
+# Predicted value of the mean in the following subpopulation: NUTS4type==2
+EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights, estMSE)$thetaP
 
-#All results
-EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights)
+# All results
+EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights, estMSE)
 
 detach(invData2018)
 
 ##########################################################
 
-### Prediction of the subpopulation total based on longitudinal data
+### Prediction of the subpopulation total based on the longitudinal data
 
 data(invData)
 attach(invData)
 
-N=nrow(invData[(year==2013),]) #population size in the first period
-n=38 # sample size in the first period
-#subpopulation and time period of interest: NUTS2=='02' & year==2018
-Ndt=sum(NUTS2=='02' & year==2018) #subpopulation size in the period of interest
+N <- nrow(invData[(year == 2013),]) # population size in the first period
+n <- 38 # sample size in the first period
+# subpopulation and time period of interest: NUTS2 == '02' & year == 2018
+# subpopulation size in the period of interest:
+Ndt <- sum(NUTS2 == '02' & year == 2018)
 
 set.seed(123456)
-sampled_elements_in_2013=sample(N,n)
-con2013=rep(0,N)
-con2013[sampled_elements_in_2013]=1 #elements in the sample in 2013
+sampled_elements_in_2013 <- sample(N,n)
+con2013 <- rep(0,N)
+con2013[sampled_elements_in_2013] <- 1 # elements in the sample in 2013
 
-#balanced panel sample - the same elements in all 6 periods:
-con=rep(con2013,6)
+# balanced panel sample - the same elements in all 6 periods:
+con <- rep(con2013,6)
 
-YS=investments[con==1]
+YS <- investments[con == 1]
 fixed.part <- 'newly_registered'
 random.part <- '(newly_registered  | NUTS4)' 
-reg=invData[, - which(names(invData) == 'investments')]
+reg <- invData[, -which(names(invData) == 'investments')]
 
-gamma=rep(0,nrow(invData))
-gamma[NUTS2=='02' & year==2018]=1
+gamma <- rep(0,nrow(invData))
+gamma[NUTS2 == '02' & year == 2018] <- 1
 
-weights=rep(1,nrow(invData)) #homoscedastic random components
+weights <- rep(1,nrow(invData)) # homoscedastic random components
+estMSE <- TRUE 
 
 # Predicted value of the total 
-# in the following subpopulation: NUTS4type==2 
-# in the following time period: year==2018
-EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights)$thetaP
+# in the following subpopulation: NUTS4type == 2 
+# in the following time period: year == 2018
+EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights, estMSE)$thetaP
 
-#All results
-EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights)
+# All results
+EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights, estMSE)
 
 detach(invData)
 

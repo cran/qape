@@ -8,10 +8,11 @@
 EstCM(model)
 }
 
-\arguments{ \item{model}{ \emph{lmer}) object.
+\arguments{
+\item{model}{ \emph{lmer} object.}
+
 }
-}
-\value{list of estimated covariance matrices of predicted random effects.}
+\value{a list of estimated covariance matrices of predicted random effects.}
 
 \references{
 1. Carpenter, J.R., Goldstein, H. and Rasbash, J. (2003), A novel bootstrap procedure for assessing the relationship between class size and achievement. Journal of the Royal Statistical Society: Series C (Applied Statistics), 52, 431-443. \cr 
@@ -26,7 +27,9 @@ Alicja Wolny-Dominiak, Tomasz Zadlo}
 library(lme4)
 data(invData)
 attach(invData)
-model=lmer(investments~newly_registered+(1|NUTS4))
+model <- lmer(investments ~ newly_registered + ((1|NUTS2) + 
+((newly_registered - 1)|NUTS2) + ((newly_registered)|NUTS4)))
 EstCM(model)
+detach(invData)
 }
 

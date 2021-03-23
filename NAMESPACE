@@ -10,3 +10,10 @@ import(
 importFrom("stats", "formula", "lm", "model.frame", "model.matrix",
              "predict", "quantile", "residuals", "rnorm", "sigma",
              "weights")
+
+S3method(print, EBLUP)
+S3method(print, ebpLMMne)
+S3method(print, plugInLMM)
+S3method(summary, EBLUP)
+S3method(summary, ebpLMMne)
+S3method(summary, plugInLMM)

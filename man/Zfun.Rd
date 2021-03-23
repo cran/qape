@@ -3,21 +3,23 @@
 
 \title{Matrix Z creator}
 
-\description{The function creates the Z matrix of auxiliary variables asscociatied with random effects 
+\description{The function creates the Z matrix of auxiliary variables 
+asscociatied with random effects. 
 }
 \usage{
 Zfun(model, data)
 }
 
 \arguments{
-  \item{model}{formula of model (use formula() function)
+  \item{model}{formula of model (use \emph{formula()} function).
 }
-  \item{data}{data
+  \item{data}{data.
 }
 }
 \value{
-\item{Z}{Z matrix}
-\item{vNames}{labels of random effects}
+\item{Z}{Z matrix.}
+\item{vNames}{labels of random effects.}
+\item{ZBlockNames}{labels of blocks of random effects.}
 }
 
 \author{

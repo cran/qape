@@ -8,7 +8,7 @@
 corrRanef(model)
 }
 \arguments{
-\item{model}{ \emph{lmer}) object .
+\item{model}{ \emph{lmer} object .
 }
 }
 \value{a list of corrected predicted random effects (of the same form as \emph{ranef(model)})}
@@ -24,7 +24,9 @@ Tomasz Zadlo}
 library(lme4)
 data(invData)
 attach(invData)
-model=lmer(investments~newly_registered+(1|NUTS4))
+model <- lmer(investments ~ newly_registered + ((1|NUTS2) + 
+((newly_registered - 1)|NUTS2) + ((newly_registered)|NUTS4)))
 corrRanef(model)
+detach(invData)
 }
 
