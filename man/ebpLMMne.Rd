@@ -66,9 +66,9 @@ The function returns a list with the following objects:
 }
 
 \references{
-1. Chwila, A., Zadlo, T. (2019) On properties of empirical best predictors. Communications in Statistics ? Simulation and Computation, available online: https://doi.org/10.1080/03610918.2019.1649422 \cr
+1. Chwila, A., Zadlo, T. (2022) On properties of empirical best predictors. Communications in Statistics - Simulation and Computation, 51(1), 220-253, https://doi.org/10.1080/03610918.2019.1649422 \cr
 2. Molina, I., Rao, J.N.K. (2010) Small area estimation of poverty indicators. Canadian Journal of Statistics 38(3), 369-385. \cr  
-3. Zadlo, T. (2017). On prediction of population and subpopulation characteristics for future periods, Communications in Statistics - Simulation and Computation 461(10) 8086-8104. \cr
+3. Zadlo, T. (2017). On prediction of population and subpopulation characteristics for future periods, Communications in Statistics - Simulation and Computation 461(10), 8086-8104. \cr
 }
 
 \author{
@@ -76,11 +76,6 @@ Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 
 \examples{
-
-library(lme4)
-library(Matrix)
-
-
 ### Prediction of the subpopulation median 
 ### and the subpopulation standard deviation 
 ### based on the cross-sectional data
@@ -112,11 +107,15 @@ L <- 5
 
 # Predicted values of the median and the standard deviation
 # in the following subpopulation: NUTS4type==2
-
+set.seed(123456)
 ebpLMMne(YS, fixed.part, division, reg, con, backTrans, thetaFun, L)$thetaP
 
-# All results
+set.seed(123456)
 ebpLMMne(YS, fixed.part, division, reg, con, backTrans, thetaFun, L)
+
+# All results
+set.seed(123456)
+str(ebpLMMne(YS, fixed.part, division, reg, con, backTrans, thetaFun, L))
 
 detach(invData2018)
 
@@ -150,10 +149,14 @@ L <- 5
 # Predicted values of quartiles 
 # in the following subpopulation: NUTS4type==2 
 # in the following time period: year==2018
+set.seed(123456)
 ebpLMMne(YS, fixed.part, division, reg, con, backTrans, thetaFun, L)$thetaP
 
-# All results
+set.seed(123456)
 ebpLMMne(YS, fixed.part, division, reg, con, backTrans, thetaFun, L)
+
+# All results
+str(ebpLMMne(YS, fixed.part, division, reg, con, backTrans, thetaFun, L))
 
 
 detach(invData)

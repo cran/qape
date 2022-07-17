@@ -7,8 +7,8 @@ print the value of EBLUP predictor}
 }
 
 \arguments{
-\item{x}{the object of class 'EBLUP'}
-\item{\dots}{not used}
+\item{x}{the object of class 'EBLUP'.}
+\item{\dots}{not used.}
 }
 
 \description{Print the value of EBLUP predictor.}

@@ -39,8 +39,8 @@ bootRes <-
       )
     }
     
-    if (class(predictor) != 'EBLUP' &
-        class(predictor) != 'plugInLMM' & class(predictor) != 'ebpLMMne') {
+    if (inherits(predictor, 'EBLUP') == F & inherits(predictor, 'plugInLMM') == F & 
+    inherits(predictor, 'ebpLMMne') == F) {
       stop("wrong predictor")
     }
       if (B < 1) {
@@ -138,12 +138,15 @@ bootRes <-
       })
     }
     
+    quantileNaN <- function (x, probs) {
+      if (sum(is.nan(x)) > 0) rep(NaN,length(probs)) else {quantile(x, probs)}}
+    
     error <- matrix((predictorSim - thetaSim), ncol = B)
     
     return(
       list(
         estQAPE = sapply(1:nrow(error), function(i)
-          quantile(abs(error[i, ]), probs = p)),
+          quantileNaN(abs(error[i, ]), probs = p)),
         estRMSE = sapply(1:nrow(error), function(i)
           sqrt((sum(
             error[i, ] ^ 2

@@ -1,4 +1,4 @@
-doubleBoot <-
+doubleBootFuture <-
 function (predictor, B1, B2, p, q) 
 {
   if (inherits(predictor, 'EBLUP') == F & inherits(predictor, 'plugInLMM') == F & 
@@ -12,8 +12,10 @@ function (predictor, B1, B2, p, q)
     stop("B2 must be > 0")
   }
   B1 <- B1 + 1
-  bootPar1 <- bootPar(predictor, B1, p)
+  bootPar1 <- bootParFuture(predictor, B1, p)
+  
   positiveDefiniteEstGlev1 <- bootPar1$positiveDefiniteEstG 
+  
   if (positiveDefiniteEstGlev1 == FALSE) {
     cat(paste("non-positive definite estimated covariance matrix of random effects used at the first level - y is generated at the first level based on a model without random effects", "\n"))
   }
@@ -30,13 +32,14 @@ function (predictor, B1, B2, p, q)
   estQAPE <- sapply(1:number_of_predictors, function(i) quantileNaN(abs(error1[i, 
   ]), probs = p))
   class <- class(predictor)
+  
   if (class == "plugInLMM") {
     bootPar2 <- lapply(1:B1, function(i) {
       YS1 <- Ysim1S[, i]
       pred2 <- plugInLMM(YS1, predictor$fixed.part, predictor$random.part, 
                          predictor$reg, predictor$con, predictor$weights, 
                          predictor$backTrans, predictor$thetaFun)
-      bootPar2 <- bootPar(pred2, B2, p)
+      bootPar2 <- bootParFuture(pred2, B2, p)
       positiveDefiniteEstGlev2 <- bootPar2$positiveDefiniteEstG
       error2 <- bootPar2$error
       return(list(error2 = error2, positiveDefiniteEstGlev2 = positiveDefiniteEstGlev2))
@@ -48,7 +51,7 @@ function (predictor, B1, B2, p, q)
       pred2 <- ebpLMMne(YS1, predictor$fixed.part, predictor$division, 
                         predictor$reg, predictor$con, predictor$backTrans, 
                         predictor$thetaFun, predictor$L)
-      bootPar2 <- bootPar(pred2, B2, p)
+      bootPar2 <- bootParFuture(pred2, B2, p)
       positiveDefiniteEstGlev2 <- bootPar2$positiveDefiniteEstG
       error2 <- bootPar2$error
       return(list(error2 = error2, positiveDefiniteEstGlev2 = positiveDefiniteEstGlev2))
@@ -60,12 +63,13 @@ function (predictor, B1, B2, p, q)
       pred2 <- EBLUP(YS1, predictor$fixed.part, predictor$random.part, 
                      predictor$reg, predictor$con, predictor$gamma, 
                      predictor$weights, estMSE = FALSE)
-      bootPar2 <- bootPar(pred2, B2, p)
+      bootPar2 <- bootParFuture(pred2, B2, p)
       positiveDefiniteEstGlev2 <- bootPar2$positiveDefiniteEstG
       error2 <- bootPar2$error
       return(list(error2 = error2, positiveDefiniteEstGlev2 = positiveDefiniteEstGlev2))
     })
   }
+  
   
   positiveDefiniteEstGlev2 <- sum(as.numeric(sapply(1:B1, function(i) (bootPar2[[i]]$positiveDefiniteEstGlev2))))
   if (positiveDefiniteEstGlev2 < B1) {
@@ -75,7 +79,6 @@ function (predictor, B1, B2, p, q)
   error2 <- lapply(1:number_of_predictors, function(j) { 
     t(sapply(bootPar2, function(x) x$error2[j, ]))
   })
-  
   
   mse4 <- sapply(1:number_of_predictors, function(i) sum(error1[i, 
   ]^2)/B1)
@@ -145,5 +148,5 @@ function (predictor, B1, B2, p, q)
               error1 = error1, error2 = error2, corSquaredError1_db_B2 = u1_2, 
               corSquaredError1_db_1 = u2_2, corSquaredError1_db_telesc = u3_2, 
               corSquaredError1_db_B2_WDZ = u1_2mod, corSquaredError1_db_1_WDZ = u2_2mod, 
-              corSquaredError1_db_telesc_WDZ = u3_2mod, positiveDefiniteEstGlev1 = positiveDefiniteEstGlev1, positiveDefiniteEstGlev2 = positiveDefiniteEstGlev2))
+              corSquaredError1_db_telesc_WDZ = u3_2, positiveDefiniteEstGlev1 = positiveDefiniteEstGlev1, positiveDefiniteEstGlev2 = positiveDefiniteEstGlev2))
 }

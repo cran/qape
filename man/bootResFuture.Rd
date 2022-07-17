@@ -1,12 +1,15 @@
-\name{bootRes}
-\alias{bootRes}
+\name{bootResFuture}
+\alias{bootResFuture}
+
 \title{
-Residual bootstrap estimators of prediction accuracy
+Residual bootstrap estimators of prediction accuracy - parallel computing
 }
-\description{The function computes values of residual bootstrap estimators of RMSE and QAPE prediction accuracy measures.
+
+\description{The function computes values of residual bootstrap estimators of RMSE and QAPE prediction accuracy measures using parallel computing.
 }
+
 \usage{
-bootRes(predictor, B, p, correction)
+bootResFuture(predictor, B, p, correction)
 }
 
 \arguments{
@@ -20,10 +23,10 @@ bootRes(predictor, B, p, correction)
 }
 }
 
-\details{Residual bootstrap considered by Carpener, Goldstein and Rasbash (2003), Chambers and Chandra (2013) and Thai et al. (2013) is used. To generate one bootstrap realization of the population vector of the variable of interest: (i) from the sample vector of predicted random components the simple random sample with replacement of population size is drawn at random, (ii) from the vector of predicted random effects the simple random sample with replacement of size equal to the number of random effects in the whole population is drawn at random. If {\emph{correction}} is {\emph{TRUE}}, then predicted random effects are transformed as described in Carpener, Goldstein and Rasbash (2003) in Section 3.2 and predicted random components as presented in Chambers and Chandra (2013) in Section 2.2. We use the MSE estimator defined as the mean of squared bootstrap errors considered by Rao and Molina (2015) p. 141 given by equation (6.2.22). The QAPE is a quantile of absolute prediction error which means that at least p100\% of realizations of absolute prediction errors are smaller or equal to QAPE. It is estimated as a quantile of absolute bootstrap errors as proposed by Zadlo (2017) in Section 2.}
+\details{Residual bootstrap considered by Carpener, Goldstein and Rasbash (2003), Chambers and Chandra (2013) and Thai et al. (2013) is used. To generate one bootstrap realization of the population vector of the variable of interest: (i) from the sample vector of predicted random components the simple random sample with replacement of population size is drawn at random, (ii) from the vector of predicted random effects the simple random sample with replacement of size equal the number of random effects in the whole population is drawn at random. If {\emph{correction}} is {\emph{TRUE}}, then predicted random effects are transformed as described in Carpener, Goldstein and Rasbash (2003) in Section 3.2 and predicted random components as presented in Chambers and Chandra (2013) in Section 2.2. We use the MSE estimator defined as the mean of squared bootstrap errors considered by Rao and Molina (2015) p. 141 given by equation (6.2.22). The QAPE is a quantile of absolute prediction error which means that at least p100\% of realizations of absolute prediction errors are smaller or equal to QAPE. It is estimated as a quantile of absolute bootstrap errors as proposed by Zadlo (2017) in Section 2. The parallel processing is performed via the \emph{future.apply} package.}
 
 \value{
-\item{estQAPE}{estimated value/s of QAPE - number of rows is equal the number of orders of quantiles to be considered (declared in \emph{p}), number of columns is equal to the number of predicted characteristics (declared in  in \emph{thetaFun}).}
+\item{estQAPE}{estimated value/s of QAPE - number of rows is equal the number of orders of quantiles to be considered (declared in \emph{p}), number of columns is equal the number of predicted characteristics (declared in  in \emph{thetaFun}).}
 \item{estRMSE}{estimated value/s of RMSE (more than one value is computed if in \emph{thetaFun} more than one population characteristic is defined).}
 \item{predictorSim}{bootstrapped values of the predictor/s.}
 \item{thetaSim}{bootstrapped values of the predicted population or subpopulation characteristic/s.}
@@ -72,7 +75,7 @@ predictor <- plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans
 predictor$thetaP
 
 ### Estimation of prediction accuracy
-est_accuracy <- bootRes(predictor, 10, c(0.5,0.8), correction = TRUE)
+est_accuracy <- bootResFuture(predictor, 10, c(0.5,0.8), correction = TRUE)
 
 # Estimation of prediction RMSE
 est_accuracy$estRMSE
@@ -96,3 +99,5 @@ est_accuracy$estQAPE
 
 detach(invData2018)
 }
+
+

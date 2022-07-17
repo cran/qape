@@ -7,13 +7,13 @@ Population data - real estate in Poland at NUTS 4 level
 \description{A data frame with 1504 observations on the following 7 variables (NUTS 4 units with masked values of the variables due to Statistical confidentiality has been removed).}
 
 \arguments{
-\item{year}{year} 
-\item{NUTS4}{NUTS 4 code (powiats)}
-\item{NUTS2}{NUTS 2 code (voivodships)}
-\item{NUTS4type}{type of NUTS 4 (1 - land counties, 2 - city counties/cities with powiat status)}
-\item{premises}{number of residential premises sold in market transactions (in thousands)}
-\item{area}{usable floor area of residential premises sold in market transactions (in millions of square meters)}
-\item{price}{sum of prices of residential premises sold (in billions of Polish zloty)}
+\item{year}{year.} 
+\item{NUTS4}{NUTS 4 code (powiats).}
+\item{NUTS2}{NUTS 2 code (voivodships).}
+\item{NUTS4type}{type of NUTS 4 (1 - land counties, 2 - city counties/cities with powiat status).}
+\item{premises}{number of residential premises sold in market transactions (in thousands).}
+\item{area}{usable floor area of residential premises sold in market transactions (in millions of square meters).}
+\item{price}{sum of prices of residential premises sold (in billions of Polish zloty).}
 }
 
 \source{Statitics Poland, https://bdl.stat.gov.pl/eng

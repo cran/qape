@@ -1,4 +1,5 @@
-bootPar <- function (predictor, B, p) 
+bootParFuture <-
+function(predictor, B, p) 
 {
   if (inherits(predictor, 'EBLUP') == F & inherits(predictor, 'plugInLMM') == F & 
     inherits(predictor, 'ebpLMMne') == F) {
@@ -21,26 +22,29 @@ bootPar <- function (predictor, B, p)
     bmlist[[i]] <- bdiag(replicate(k, as.matrix(as.data.frame(VarCorr(predictor$mEst)[[correct_order[i]]])), 
                                    simplify = F))
   }
-  Gall <- bdiag(bmlist)
- if (is.positive.definite(as.matrix(Gall)) == FALSE) {
+  
+Gall <- bdiag(bmlist)
+  if (is.positive.definite(as.matrix(Gall)) == FALSE) {
     positiveDefiniteEstG <- FALSE
     Ysim <- as.vector(predictor$Xbeta) + t(chol(as.matrix(R))) %*% matrix(rnorm(N * B), nrow = N)
     cat(paste("non-positive definite estimated covariance matrix of random effects - y is generated based on a model without random effects", "\n"))
-  } else 
-  {positiveDefiniteEstG <- TRUE
-  Ysim <- as.vector(predictor$Xbeta) + 
-    predictor$Z %*% (t(chol(as.matrix(Gall))) %*% matrix(rnorm(ncol(predictor$Z) * B), nrow = ncol(predictor$Z))) + 
-    t(chol(as.matrix(R))) %*% matrix(rnorm(N * B), nrow = N)}
+    } else 
+      {positiveDefiniteEstG <- TRUE
+      Ysim <- as.vector(predictor$Xbeta) + 
+      predictor$Z %*% (t(chol(as.matrix(Gall))) %*% matrix(rnorm(ncol(predictor$Z) * B), nrow = ncol(predictor$Z))) + 
+      t(chol(as.matrix(R))) %*% matrix(rnorm(N * B), nrow = N)}
   
-   
-   
-   YsimS <- matrix(Ysim[predictor$con == 1, ], ncol = B)
+YsimS <- matrix(Ysim[predictor$con == 1, ], ncol = B)
   class <- class(predictor)
   if (class == "EBLUP") {
-    thetaSim <- sapply(1:B, function(i) as.numeric(as.vector(predictor$gamma) %*% 
+    thetaSim <- future_sapply(1:B,  future.seed=TRUE, 
+                              future.globals = list(reg=predictor$reg,predictor=predictor, Ysim = Ysim), 
+                              function(i) as.numeric(as.vector(predictor$gamma) %*% 
                                                      Ysim[, i]))
-    predictorSim <- sapply(1:B, function(i) {
-      thetaPeblup <- as.numeric(EBLUP(YsimS[, i], predictor$fixed.part, 
+    predictorSim <- future_sapply(1:B, future.seed=TRUE, 
+                                  future.globals = list(EBLUP=EBLUP, YsimS=YsimS, predictor=predictor, reg=predictor$reg),
+                                  function(i) {
+          thetaPeblup <- as.numeric(EBLUP(YsimS[, i], predictor$fixed.part, 
                                       predictor$random.part, predictor$reg, predictor$con, 
                                       predictor$gamma, predictor$weights, estMSE = FALSE)$thetaP)
       return(thetaPeblup)
@@ -50,9 +54,13 @@ bootPar <- function (predictor, B, p)
     if (is.null(predictor$backTrans)) {
       predictor$backTrans <- function(x) x
     }
-    thetaSim <- sapply(1:B, function(i) as.numeric(predictor$thetaFun(predictor$backTrans(Ysim[, 
+    thetaSim <- future_sapply(1:B, future.seed=TRUE, 
+                              future.globals = list(reg=predictor$reg,predictor=predictor, Ysim = Ysim),
+                              function(i) as.numeric(predictor$thetaFun(predictor$backTrans(Ysim[, 
                                                                                                i]))))
-    predictorSim <- sapply(1:B, function(i) {
+    predictorSim <- future_sapply(1:B, future.seed=TRUE, 
+                                  future.globals = list(plugInLMM=plugInLMM, YsimS=YsimS, predictor=predictor, reg=predictor$reg),
+                                  function(i) {
       thetaPplugin <- as.numeric(plugInLMM(YsimS[, i], 
                                            predictor$fixed.part, predictor$random.part, 
                                            predictor$reg, predictor$con, predictor$weights, 
@@ -64,9 +72,13 @@ bootPar <- function (predictor, B, p)
     if (is.null(predictor$backTrans)) {
       predictor$backTrans <- function(x) x
     }
-    thetaSim <- sapply(1:B, function(i) as.numeric(predictor$thetaFun(predictor$backTrans(Ysim[, 
+    thetaSim <- future_sapply(1:B, future.seed=TRUE, 
+                              future.globals = list(reg=predictor$reg,predictor=predictor, Ysim = Ysim),
+                              function(i) as.numeric(predictor$thetaFun(predictor$backTrans(Ysim[, 
                                                                                                i]))))
-    predictorSim <- sapply(1:B, function(i) {
+    predictorSim <- future_sapply(1:B, future.seed=TRUE, 
+                                  future.globals = list(ebpLMMne=ebpLMMne, YsimS=YsimS, predictor=predictor, reg=predictor$reg),
+                                  function(i) {
       thetaPebp <- as.numeric(ebpLMMne(YsimS[, i], predictor$fixed.part, 
                                        predictor$division, predictor$reg, predictor$con, 
                                        predictor$backTrans, predictor$thetaFun, predictor$L)$thetaP)
@@ -78,8 +90,8 @@ bootPar <- function (predictor, B, p)
     if (sum(is.nan(x)) > 0) rep(NaN,length(probs)) else {quantile(x, probs)}}
   
   error <- matrix((predictorSim - thetaSim), ncol = B)
-  return(list(estQAPE = sapply(1:nrow(error), function(i) quantileNaN(abs(error[i, 
-  ]), probs = p)), estRMSE = sapply(1:nrow(error), function(i) sqrt((sum(error[i, 
+  return(list(estQAPE = future_sapply(1:nrow(error), function(i) quantileNaN(abs(error[i, 
+  ]), probs = p)), estRMSE = future_sapply(1:nrow(error), function(i) sqrt((sum(error[i, 
   ]^2))/length(error[i, ]))), predictorSim = predictorSim, 
   thetaSim = thetaSim, Ysim = Ysim, error = error, positiveDefiniteEstG = positiveDefiniteEstG))
 }

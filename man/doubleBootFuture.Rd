@@ -1,32 +1,30 @@
-\name{doubleBoot}
-\alias{doubleBoot}
+\name{doubleBootFuture}
+\alias{doubleBootFuture}
 
-\title{Double bootstrap estimators of prediction accuracy
+\title{Double bootstrap estimators of prediction accuracy - parallel computing
 }
-\description{The function computes values of double bootstrap estimators of the MSE and the QAPE prediction accuracy measures.
+
+\description{The function computes values of double bootstrap estimators of the MSE and the QAPE prediction accuracy measures using parallel computing.
+
 }
 \usage{
-doubleBoot(predictor, B1, B2, p, q)
+doubleBootFuture(predictor, B1, B2, p, q)
 }
 
 \arguments{
   \item{predictor}{one of objects: EBLUP, ebpLMMne or plugInLMM.
 }
   \item{B1}{number of first-level bootstrap iterations.
-
 }
-  \item{B2}{
-number of second-level bootstrap iterations.
+  \item{B2}{number of second-level bootstrap iterations.
 }
-  \item{p}{
-orders of quantiles in the QAPE.
+  \item{p}{orders of quantiles in the QAPE.
 }
-  \item{q}{
-estimator bounds assumed for \emph{estMSE_db_1_EF} and \emph{estMSE_db_telesc_EF} (which are corrected versions of \emph{estMSE_db_1} and \emph{estMSE_db_telesc}, respectively).
+  \item{q}{estimator bounds assumed for \emph{estMSE_db_1_EF} and \emph{estMSE_db_telesc_EF} (which are corrected versions of \emph{estMSE_db_1} and \emph{estMSE_db_telesc}, respectively).
 }
 }
 
-\details{Double-bootstrap method considered by Hall and Maiti (2006) and  Erciulescu and Fuller (2013) is used. Vectors of random effects and random components are generated from the multivariate normal distribution and REML estimates of model parameters are used. Random effects are generated for all population elements even for subsets with zero sample sizes (for which random effects are not estimated). Double-bootstrap MSE estimator presented in Hall and Maiti (2006) and  Erciulescu and Fuller (2013) are taken into account. The QAPE is a quantile of absolute prediction error which means that at least p100\% of realizations of absolute prediction errors are smaller or equal to QAPE.  
+\details{Double-bootstrap method considered by Hall and Maiti (2006) and  Erciulescu and Fuller (2013) is used. Vectors of random effects and random components are generated from the multivariate normal distribution and REML estimates of model parameters are used. Random effects are generated for all population elements even for subsets with zero sample sizes (for which random effects are not estimated). Double-bootstrap MSE estimator presented in Hall and Maiti (2006) and  Erciulescu and Fuller (2013) are taken into account. The QAPE is a quantile of absolute prediction error which means that at least p100\% of realizations of absolute prediction errors are smaller or equal to QAPE. The parallel processing is performed via the \emph{future.apply} package.  
 }
 
 
@@ -130,8 +128,9 @@ predictor$thetaP
 # for the predictor of the value of the variable for population element no. 379,
 # in the second column
 # for the predictor of the value of the variable for population element no. 380:
-doubleBoot(predictor, 3, 3, c(0.5,0.9), 0.77) 
+doubleBootFuture(predictor, 3, 3, c(0.5,0.9), 0.77) 
 #q=0.77 assumed as in Erciulescu and FUller (2014) eq. (17)
 
 detach(invData2018)
 }
+

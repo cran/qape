@@ -8,10 +8,10 @@
 corrRanef(model)
 }
 \arguments{
-\item{model}{ \emph{lmer} object .
+\item{model}{ \emph{lmer} object.
 }
 }
-\value{a list of corrected predicted random effects (of the same form as \emph{ranef(model)})}
+\value{a list of corrected predicted random effects (of the same form as \emph{ranef(model)}).}
 
 \references{
 Carpenter, J.R., Goldstein, H. and Rasbash, J. (2003), A novel bootstrap procedure for assessing the relationship between class size and achievement. Journal of the Royal Statistical Society: Series C (Applied Statistics), 52, 431-443. \cr

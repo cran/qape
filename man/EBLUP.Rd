@@ -13,10 +13,14 @@ EBLUP(YS, fixed.part, random.part, reg, con, gamma, weights, estMSE)
 \arguments{
   \item{YS}{values of the variable of interest observed in the sample.
 }
-  \item{fixed.part}{fixed-effects terms declared as in \emph{lmer} object. 
+  \item{fixed.part}{fixed-effects terms declared as in \emph{lmer} object. Names of columns of \emph{reg} must be used. 
 }
-  \item{random.part}{random-effects terms declared as in \emph{lmer} object. 
+
+  \item{random.part}{random-effects terms declared as in \emph{lmer} object. Names of columns of \emph{reg} must be used e.g. to use \emph{(1|g1:g2)} add a new column to \emph{reg} defined as \emph{g3 <- interaction(g1,g2)}, and use \emph{(1|g3).}
 }
+
+
+
   \item{reg}{the population matrix of auxiliary variables named in \emph{fixed.part} and \emph{random.part}.
 }
   \item{con}{the population 0-1 vector with 1s for elements in the sample and 0s for elements which are not in the sample.
@@ -75,10 +79,6 @@ The function returns a list with the following objects:
 Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 \examples{
-library(lme4)
-library(Matrix)
-
-
 ### Prediction of the subpopulation mean based on the cross-sectional data
 
 data(invData) 

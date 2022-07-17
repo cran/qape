@@ -1,12 +1,13 @@
-\name{bootPar}
-\alias{bootPar}
-\title{
-Parametric bootstrap estimators of prediction accuracy
+\name{bootParFuture}
+\alias{bootParFuture}
+
+\title{Parametric bootstrap estimators of prediction accuracy - parallel computing.
 }
-\description{The function computes values of parametric bootstrap estimators of RMSE and QAPE prediction accuracy measures.
+
+\description{The function computes values of parametric bootstrap estimators of RMSE and QAPE prediction accuracy measures using parallel computing
 }
 \usage{
-bootPar(predictor, B, p)
+bootParFuture(predictor, B, p)
 }
 
 \arguments{
@@ -18,7 +19,8 @@ bootPar(predictor, B, p)
 }
 }
 
-\details{We use bootstrap model presented by Chatterjee, Lahiri and  Li (2008) p. 1229 but assumed for all population elements. Vectors of random effects and random components are generated from the multivariate normal distribution where REML estimates of model parameters are used. Random effects are generated for all population elements even for subsets with zero sample sizes (for which random effects are not estimated). We use the MSE estimator defined as the mean of squared bootstrap errors considered by Rao and Molina (2015) p. 141 and given by equation (6.2.22). The QAPE is a quantile of absolute prediction error which means that at least p100\% of realizations of absolute prediction errors are smaller or equal to QAPE. It is estimated as a quantile of absolute bootstrap errors as proposed by Zadlo (2017) in Section 2.  
+
+\details{We use bootstrap model presented by Chatterjee, Lahiri and  Li (2008) p. 1229 but assumed for all population elements. Vectors of random effects and random components are generated from the multivariate normal distribution where REML estimates of model parameters are used. Random effects are generated for all population elements even for subsets with zero sample sizes (for which random effects are not estimated). We use the MSE estimator defined as the mean of squared bootstrap errors considered by Rao and Molina (2015) p. 141 and given by equation (6.2.22). The QAPE is a quantile of absolute prediction error which means that at least p100\% of realizations of absolute prediction errors are smaller or equal to QAPE. It is estimated as a quantile of absolute bootstrap errors as proposed by Zadlo (2017) in Section 2.  The parallel processing is performed via the \emph{future.apply} package.  
 }
 
 \value{
@@ -33,9 +35,9 @@ bootPar(predictor, B, p)
 
 \references{
 
-1. Butar, B. F., Lahiri, P. (2003) On measures of uncertainty of empirical Bayes small-area estimators, Journal of Statistical Planning and Inference, 112, 63-76.\cr
+1. Butar, B. F., Lahiri, P. (2003) On measures of uncertainty of empirical Bayes small-area estimators, Journal of Statistical Planning and Inference, Vol. 112, pp. 63-76.\cr
 
-2. Chatterjee, S., Lahiri, P. Li, H. (2008) Parametric bootstrap approximation to the distribution of EBLUP and related prediction intervals in linear mixed models, Annals of Statistics, Vol. 36 (3), 1221-1245.\cr
+2. Chatterjee, S., Lahiri, P. Li, H. (2008) Parametric bootstrap approximation to the distribution of EBLUP and related prediction intervals in linear mixed models, Annals of Statistics, Vol. 36 (3), pp. 1221?1245.\cr
 
 3. Rao, J.N.K. and Molina, I. (2015) Small Area Estimation. Second edition, John Wiley & Sons, New Jersey.\cr
 
@@ -68,13 +70,13 @@ weights <- rep(1,N) # homoscedastic random components
 # Characteristics to be predicted:
 # values of the variable for last two population elements  
 thetaFun <- function(x) {x[c(379,380)]}
-set.seed(123456)
+set.seed(123)
 
 predictor <- plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
 predictor$thetaP
 
 ### Estimation of prediction accuracy
-est_accuracy <- bootPar(predictor, 10, c(0.75,0.9))
+est_accuracy <- bootParFuture(predictor, 10, c(0.75,0.9))
 
 # Estimation of prediction RMSE
 est_accuracy$estRMSE
@@ -83,19 +85,19 @@ est_accuracy$estRMSE
 est_accuracy$estQAPE
 
 #        [,1]     [,2]
-# 75% 2888.291 115.6076
-# 90% 5472.738 127.0623
+# 75% 1370.823 180.0514
+# 90% 1477.444 249.7517
 
 ####### Interpretations in case of prediction of investments 
 ####### for population element no. 379:
 ### It is estimated that at least 75% of absolute prediction errors are
-# smaller or equal 2888.291 milion Polish zloty
+# smaller or equal 1370.823 milion Polish zloty
 # and at least 25% of absolute prediction errors are
-# greater or equal 2888.291 milion Polish zloty. 
+# greater or equal 1370.823 milion Polish zloty. 
 ### It is estimated that at least 90% of absolute prediction errors are
-# smaller or equal 5472.738 milion Polish zloty
+# smaller or equal 1477.444 milion Polish zloty
 # and at least 10% of absolute prediction errors are
-# greater or equal 5472.738 milion Polish zloty. 
+# greater or equal 1477.444 milion Polish zloty. 
 
 detach(invData2018)
 }

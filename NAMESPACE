@@ -4,7 +4,9 @@ import(
   lme4,
   Matrix,
   mvtnorm,
-  dplyr
+  dplyr,
+  matrixcalc,
+  future.apply
 )
 
 importFrom("stats", "formula", "lm", "model.frame", "model.matrix",

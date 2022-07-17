@@ -13,10 +13,12 @@ plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
 \arguments{
   \item{YS}{values of the variable of interest (already transformed if necessary) observed in the sample and used in the model as the dependent variable.}
   
-  \item{fixed.part}{fixed-effects terms declared as in \emph{lmer} object.
+  \item{fixed.part}{fixed-effects terms declared as in \emph{lmer} object. Names of columns of \emph{reg} must be used. 
 }
-  \item{random.part}{random-effects terms declared as in \emph{lmer} object.
+
+  \item{random.part}{random-effects terms declared as in \emph{lmer} object. Names of columns of \emph{reg} must be used e.g. to use \emph{(1|g1:g2)} add a new column to \emph{reg} defined as \emph{g3 <- interaction(g1,g2)}, and use \emph{(1|g3).}
 }
+
   \item{reg}{the population matrix of auxiliary variables named in \emph{fixed.part} and \emph{random.part}.
 }
   \item{con}{the population 0-1 vector with 1s for elements in the sample and 0s for elements which are not in the sample.
@@ -25,7 +27,7 @@ plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
 }
   \item{backTrans}{back-transformation function of the variable of interest (e.g. if YS is log-tranformed, then backTrans <- function(x) exp(x)). 
 }
-  \item{thetaFun}{the predictor function (e.g. mean or sd)
+  \item{thetaFun}{the predictor function (e.g. mean or sd).
 }
 }
 
@@ -64,18 +66,13 @@ The function returns a list with the following objects:
 }
 
 \references{
-Chwila, A., Zadlo, T. (2019) On properties of empirical best predictors. Communications in Statistics - Simulation and Computation, available online: https://doi.org/10.1080/03610918.2019.1649422
+Chwila, A., Zadlo, T. (2022) On properties of empirical best predictors. Communications in Statistics - Simulation and Computation, 51(1), 220-253, https://doi.org/10.1080/03610918.2019.1649422
 
 }
 \author{
 Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 \examples{
-
-library(lme4)
-library(Matrix)
-
-
 ### Prediction of the subpopulation median 
 ### and the subpopulation standard deviation 
 ### based on the cross-sectional data
@@ -107,9 +104,10 @@ thetaFun <- function(x) {c(median(x[NUTS4type == 2]),sd(x[NUTS4type == 2]))}
 # in the following subpopulation: NUTS4type == 2
 
 plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)$thetaP
+plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
 
 # All results
-plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
+str(plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun))
 
 detach(invData2018)
 
@@ -148,9 +146,10 @@ thetaFun <- function(x) {quantile(x[NUTS2 == '02' & year == 2018],probs = c(0.25
 # in the following subpopulation: NUTS4type == 2 
 # in the following time period: year == 2018
 plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)$thetaP
+plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
 
 # All results
-plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
+str(plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun))
 
 detach(invData)
 

@@ -8,7 +8,7 @@
 corrRancomp(model)
 }
 \arguments{
-  \item{model}{ \emph{lmer} object .
+  \item{model}{ \emph{lmer} object.
 }
 }
 \value{the vector of corrected predicted random components.}

@@ -1,6 +1,6 @@
 summary.ebpLMMne <-
   function(object, ...){
-    cat(paste('Value/s of the predictor of the defined function/s of the dependent variable =', 
+    cat(paste('Value/s of the predictor =', 
               round(object$thetaP, 4), 
               '\nto see the details, please use str()', '\n', '\n'))
     cat(paste('Sample size = ', length(object$YS), '\n'))

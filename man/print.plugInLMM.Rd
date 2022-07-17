@@ -10,8 +10,8 @@ print the value of plugInLMM predictor}
 \description{Print the value of plugInLMM predictor.}
 
 \arguments{
-\item{x}{the object of class 'plugInLMM'}
-\item{\dots}{not used}
+\item{x}{the object of class 'plugInLMM'.}
+\item{\dots}{not used.}
 }
 
 \author{

@@ -10,7 +10,7 @@ function(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun){
     weightS <- rep(1, nrow(regS))} else {
     weightS <- subset(weights, con == 1)}
   mEst <- lmer(model, weights = weightS, data.frame(YS, regS, weightS))
-  tst <- unlist(apply((as.matrix(reg[,names(ranef(mEst))])),2,unique))
+  tst <- unlist(apply((as.matrix(reg[ ,names(ranef(mEst))])),2,unique))
   if ((length(tst[duplicated(tst)])) > 0) {stop(paste("There are at least two 'random.part' variables with at least one the same value. 
                                                  Rename the values of 'random.part' variables - you can use qape::modifyDataset"))}
   Zobj <- Zfun(model, reg)
