@@ -13,12 +13,10 @@ plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
 \arguments{
   \item{YS}{values of the variable of interest (already transformed if necessary) observed in the sample and used in the model as the dependent variable.}
   
-  \item{fixed.part}{fixed-effects terms declared as in \emph{lmer} object. Names of columns of \emph{reg} must be used. 
+  \item{fixed.part}{fixed-effects terms declared as in \emph{lmer} object.
 }
-
-  \item{random.part}{random-effects terms declared as in \emph{lmer} object. Names of columns of \emph{reg} must be used e.g. to use \emph{(1|g1:g2)} add a new column to \emph{reg} defined as \emph{g3 <- interaction(g1,g2)}, and use \emph{(1|g3).}
+  \item{random.part}{random-effects terms declared as in \emph{lmer} object.
 }
-
   \item{reg}{the population matrix of auxiliary variables named in \emph{fixed.part} and \emph{random.part}.
 }
   \item{con}{the population 0-1 vector with 1s for elements in the sample and 0s for elements which are not in the sample.
@@ -73,6 +71,11 @@ Chwila, A., Zadlo, T. (2022) On properties of empirical best predictors. Communi
 Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 \examples{
+
+library(lme4)
+library(Matrix)
+
+
 ### Prediction of the subpopulation median 
 ### and the subpopulation standard deviation 
 ### based on the cross-sectional data

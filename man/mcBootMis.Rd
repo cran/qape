@@ -7,17 +7,19 @@
 \usage{
 mcBootMis(Ypop, predictorLMM, predictorLMMmis, K, B1, B2, p, q)
 }
-
 \arguments{
-  \item{Ypop}{population values of the dependent variable.
+  \item{Ypop}{population values of the variable of interest (already transformed if necessary) which are used as the dependent variable in the population model.
 }
   \item{predictorLMM}{plugInLMM object, the predictor used to define the model assumed in the simulation study.
 }
   \item{predictorLMMmis}{plugInLMM object, the second predictor, the properties of which are assessed under the misspecified model used in \emph{predictorLMM}.
 }
- \item{K}{the number of Monte Carlo iterations.
+
+  \item{K}{the number of Monte Carlo iterations.
 }
+
   \item{B1}{the number of first-level bootstrap iterations.
+
 }
   \item{B2}{the number of second-level bootstrap iterations.
 }
@@ -27,7 +29,8 @@ mcBootMis(Ypop, predictorLMM, predictorLMMmis, K, B1, B2, p, q)
 }
 }
 
-\details{In the model-based simulation study population values of the dependent variable are generated based on the (possibly transformed) Linear Mixed Model used in \emph{predictorLMM} and the accuracy of predictors \emph{predictorLMM} and \emph{predictorLMMmis} is assessed. What is more, the the accuracy of parametric, residual and double bootstrap estimators of accuracy measures is studied under the model used in \emph{predictorLMM}. Values of some MSE estimators can be negative, the number of negative values of MSE estimators obtained in the simulation study are presented in objects \emph{neg_estMSE_LMM} and \emph{neg_estMSE_LMMmis}. Hence, some RMSE estimators computed as square roots of MSE estimators can produce NaNs - see warnings.}     
+
+\details{In the model-based simulation study population values of the dependent variable are generated based on the (possibly transformed) Linear Mixed Model used in \emph{predictorLMM} and the accuracy of predictors \emph{predictorLMM} and \emph{predictorLMMmis} is assessed. What is more, the the accuracy of parametric, residual and double bootstrap estimators of accuracy measures is studied under the model used in \emph{predictorLMM}. Values of some MSE estimators can be negative, the number of negative values of MSE estimators obtained in the simulation study are presented in objects \emph{neg_estMSE_LMM} and \emph{neg_estMSE_LMMmis}. Hence, some RMSE estimators computed as square roots of MSE estimators can produce NaNs - see warnings.}
 
 
 \value{
@@ -310,34 +313,49 @@ mcBootMis(Ypop, predictorLMM, predictorLMMmis, K, B1, B2, p, q)
 }
 
 \author{
-Tomasz Zadlo, Alicja Wolny-Dominiak}
+Tomasz Zadlo}
 
 \examples{
 library(lme4)
+library(Matrix)
+library(mvtnorm)
+library(matrixcalc) 
+library(qape)
 
+data(invData) 
+# data from one period are considered: 
+invData2018 <- invData[invData$year == 2018,] 
+attach(invData2018)
 
-data(sleepstudy)
-sleepstudy$Day.sim <- sample(sleepstudy$Days, nrow(sleepstudy)) 
+N <- nrow(invData2018) # population size
 
-Ypop <- sleepstudy$Reaction
-con <- ifelse(sleepstudy$Days != 9, 1, 0)
-YS <- sleepstudy$Reaction[con == 1]
-fixed.part <- 'Days'
-random.part <- '(1 | Subject)' 
-reg <- sleepstudy[ , - which(colnames(sleepstudy)== 'Reaction')]
-gamma <-  rep(1, nrow(reg))
-weights <- rep(2, nrow(reg))
-estMSE <- TRUE
+con <- rep(1,N) 
+con[c(379,380)] <- 0 # last two population elements are not observed 
 
-# PLUG-IN predictor
-thetaFun <- function(x) {c(sum(x), mean(x))}
-plugin <- plugInLMM(YS, fixed.part, random.part, reg, 
-                     con, weights, backTrans = NULL, thetaFun)
+YS <- log(investments[con == 1]) # log-transformed values
+backTrans <- function(x) exp(x) # back-transformation of the variable of interest
+fixed.part <- 'log(newly_registered)'
+random.part <- '(1|NUTS2)'
+random.part.mis <- '(1|NUTS4type)'
 
-fixed.part.mis <- 'Day.sim'
-plugin.mis<-plugInLMM(YS, fixed.part.mis, random.part, reg, con, weights, backTrans=NULL,thetaFun)
+reg <- invData2018[, -which(names(invData2018) == 'investments')]
+weights <- rep(1,N) # homoscedastic random components
 
-mcBootMis(Ypop, plugin, plugin.mis, 2, 2, 1, c(0.5, 0.9), 0.77)
+# Characteristics to be predicted:
+# values of the variable for last two population elements  
+thetaFun <- function(x) {x[c(379,380)]}
+
+predictorLMM <- plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
+predictorLMMmis <- plugInLMM(YS, fixed.part, random.part.mis, reg, con,weights,backTrans,thetaFun)
+
+Ypop <- log(invData2018$investments)
+
+# Monte Carlo simulation study under the model defined in predictorLMM
+# correctly specified for predictorLMM and misspecified for predictorLMMmis
+set.seed(211)
+mcBootMis(Ypop, predictorLMM, predictorLMMmis, 2, 2, 2, c(0.5, 0.9), 0.77) 
+
+detach(invData2018)
 
 }
 

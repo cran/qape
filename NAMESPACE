@@ -1,13 +1,12 @@
 exportPattern("^[[:alpha:]]+")
 
-import(
-  lme4,
-  Matrix,
-  mvtnorm,
-  dplyr,
-  matrixcalc,
-  future.apply
-)
+import("lme4",
+  "Matrix",
+  "mvtnorm",
+  "dplyr",
+  "matrixcalc",
+  "future.apply",
+  "reshape2")
 
 importFrom("stats", "formula", "lm", "model.frame", "model.matrix",
              "predict", "quantile", "residuals", "rnorm", "sigma",

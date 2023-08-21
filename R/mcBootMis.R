@@ -7,8 +7,8 @@ mcBootMis <- function(Ypop, predictorLMM, predictorLMMmis, K, B1, B2, p, q) {
     predictorLMMmis$backTrans <- function(x) x
   }
   
-  if (inherits(predictorLMM, "plugInLMM") == F | inherits(predictorLMMmis, "plugInLMM") == F) {
-    stop("wrong predictor/predictors")
+ if (inherits(predictorLMM, 'plugInLMM') == F | inherits(predictorLMMmis, 'plugInLMM') == F)  {
+    stop("wrong predictor")
   }
   
   if (!all.equal(predictorLMM$YS, predictorLMMmis$YS)){ 
@@ -32,12 +32,12 @@ mcBootMis <- function(Ypop, predictorLMM, predictorLMMmis, K, B1, B2, p, q) {
   }
   
   
-  if (!all.equal((Ypop[predictorLMM$con == 1]), predictorLMM$backTrans(predictorLMM$YS))){ 
-    stop("'Objects 'Ypop[predictorLMM$con == 1]' and 'predictorLMM$backTrans(predictorLMM$YS)' must be the same")
+  if (!all.equal((Ypop[predictorLMM$con == 1]), predictorLMM$YS)){ 
+    stop("Objects 'Ypop[predictorLMM$con == 1]' and 'predictorLMM$YS' must be the same")
   }
   
-  if (!all.equal((Ypop[predictorLMM$con == 1]), predictorLMMmis$backTrans(predictorLMMmis$YS))){ 
-    stop("'Objects 'Ypop[predictorLMM$con]' and 'predictorLMMmis$backTrans(predictorLMMmis$YS)' must be the same")
+  if (!all.equal((Ypop[predictorLMM$con == 1]), predictorLMMmis$YS)){ 
+    stop("Objects 'Ypop[predictorLMM$con]' and 'predictorLMMmis$YS' must be the same")
   }
   
   
@@ -89,9 +89,7 @@ mcBootMis <- function(Ypop, predictorLMM, predictorLMMmis, K, B1, B2, p, q) {
                                        return(thetaPpluginLMMmisMc)
                                      })
   
-  quantileNaN <- function (x, probs) {
-    if (sum(is.nan(x)) > 0) rep(NaN,length(probs)) else {quantile(x, probs)}}
-  
+ 
   errorLMM <- matrix((predictorLMMMc - thetaMc), ncol = K)
   errorLMMmis <- matrix((predictorLMMmisMc - thetaMc), ncol = K)
   QAPElmm <- future_sapply(1:nrow(errorLMM), function(i) quantileNaN(abs(errorLMM[i,]), probs = p)) 
@@ -248,25 +246,18 @@ bootResTMc <- future_lapply(1:K, future.seed=TRUE,
                "estMSE_db_telesc_WDZ_LMM",
                "estMSE_db_telesc_EF_LMM"))
   rownames(neg_estMSE_LMM) <- names_LMM
+  neg_estMSE_LMM
   
-  sqrtNaN <- function (x) {
-    a <- rep(NaN,length(x))
-    for (i in 1:length(x)){
-      if(x[i]>=0) a[i] <- sqrt(x[i])
-    }
-    c(a)
-  }
-
-  MC.estRMSE_param_LMM <- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_param_LMM)})
-  MC.estRMSE_db_B2_LMM <- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_B2_LMM)}) #
-  MC.estRMSE_db_B2_WDZ_LMM<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_B2_WDZ_LMM)}) 
-  MC.estRMSE_db_B2_HM_LMM<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_B2_HM_LMM)})
-  MC.estRMSE_db_1_LMM<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_1_LMM)}) #
-  MC.estRMSE_db_1_WDZ_LMM<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_1_WDZ_LMM)})
-  MC.estRMSE_db_1_EF_LMM<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_1_EF_LMM)}) #
-  MC.estRMSE_db_telesc_LMM<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_telesc_LMM)}) #
-  MC.estRMSE_db_telesc_WDZ_LMM<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_telesc_WDZ_LMM)})
-  MC.estRMSE_db_telesc_EF_LMM<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_telesc_EF_LMM)}) #
+  MC.estRMSE_param_LMM <- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_param_LMM)})
+  MC.estRMSE_db_B2_LMM <- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_B2_LMM)}) #
+  MC.estRMSE_db_B2_WDZ_LMM<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_B2_WDZ_LMM)}) 
+  MC.estRMSE_db_B2_HM_LMM<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_B2_HM_LMM)})
+  MC.estRMSE_db_1_LMM<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_1_LMM)}) #
+  MC.estRMSE_db_1_WDZ_LMM<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_1_WDZ_LMM)})
+  MC.estRMSE_db_1_EF_LMM<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_1_EF_LMM)}) #
+  MC.estRMSE_db_telesc_LMM<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_telesc_LMM)}) #
+  MC.estRMSE_db_telesc_WDZ_LMM<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_telesc_WDZ_LMM)})
+  MC.estRMSE_db_telesc_EF_LMM<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_telesc_EF_LMM)}) #
   
   MC.estQAPE_param_LMM<- lapply(1:K, function(j) {doubleBootMc[[j]]$estQAPE_param_LMM})
   MC.estQAPE_db_B2_LMM<- lapply(1:K, function(j) {doubleBootMc[[j]]$estQAPE_db_B2_LMM})
@@ -308,16 +299,16 @@ bootResTMc <- future_lapply(1:K, future.seed=TRUE,
                   "estMSE_db_telesc_EF_LMMmis"))
   rownames(neg_estMSE_LMMmis) <- names_LMMmis
   
-  MC.estRMSE_param_LMMmis <- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_param_LMMmis)})
-  MC.estRMSE_db_B2_LMMmis <- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_B2_LMMmis)}) #
-  MC.estRMSE_db_B2_WDZ_LMMmis<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_B2_WDZ_LMMmis)}) 
-  MC.estRMSE_db_B2_HM_LMMmis<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_B2_HM_LMMmis)})
-  MC.estRMSE_db_1_LMMmis<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_1_LMMmis)}) #
-  MC.estRMSE_db_1_WDZ_LMMmis<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_1_WDZ_LMMmis)})
-  MC.estRMSE_db_1_EF_LMMmis<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_1_EF_LMMmis)}) #
-  MC.estRMSE_db_telesc_LMMmis<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_telesc_LMMmis)}) #
-  MC.estRMSE_db_telesc_WDZ_LMMmis<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_telesc_WDZ_LMMmis)})
-  MC.estRMSE_db_telesc_EF_LMMmis<- lapply(1:K, function(j) {sqrtNaN(doubleBootMc[[j]]$estMSE_db_telesc_EF_LMMmis)}) #
+  MC.estRMSE_param_LMMmis <- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_param_LMMmis)})
+  MC.estRMSE_db_B2_LMMmis <- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_B2_LMMmis)}) #
+  MC.estRMSE_db_B2_WDZ_LMMmis<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_B2_WDZ_LMMmis)}) 
+  MC.estRMSE_db_B2_HM_LMMmis<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_B2_HM_LMMmis)})
+  MC.estRMSE_db_1_LMMmis<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_1_LMMmis)}) #
+  MC.estRMSE_db_1_WDZ_LMMmis<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_1_WDZ_LMMmis)})
+  MC.estRMSE_db_1_EF_LMMmis<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_1_EF_LMMmis)}) #
+  MC.estRMSE_db_telesc_LMMmis<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_telesc_LMMmis)}) #
+  MC.estRMSE_db_telesc_WDZ_LMMmis<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_telesc_WDZ_LMMmis)})
+  MC.estRMSE_db_telesc_EF_LMMmis<- lapply(1:K, function(j) {sqrt(doubleBootMc[[j]]$estMSE_db_telesc_EF_LMMmis)}) #
   
     
   MC.estQAPE_param_LMMmis<- lapply(1:K, function(j) {doubleBootMc[[j]]$estQAPE_param_LMMmis})

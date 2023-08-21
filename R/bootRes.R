@@ -2,18 +2,17 @@ bootRes <-
   function(predictor, B, p, correction) {
     N <- nrow(predictor$X)
     YsimF <- function(...) {
-      
-     tablsrswrRe <-
+      tablsrswrRe <-
         srswrRe(ranef(predictor$mEst), predictor$reg)$tablsrswrRe
       dfeS <-
         data.frame(nrw = 1:nrow(predictor$regS),
                    predictor$regS,
                    eS = predictor$eS)
-      dfesamp <- dfeS[sample(nrow(dfeS), N, replace = T),]
+      dfesamp <- dfeS[sample(nrow(dfeS), N, replace = T), ]
       
       vsample <- tablsrswrRe$ranef
       names(vsample) <- tablsrswrRe$refNames
-     
+      
       #step 1
       return(predictor$Xbeta + predictor$Z %*% as.matrix(vsample[colnames(predictor$Z)]) + dfesamp$eS)
     }
@@ -26,7 +25,7 @@ bootRes <-
       dfeSKorekta <-
         data.frame(nrw = 1:nrow(predictor$regS), predictor$regS, eSKorekta)
       dfesampKorekta <-
-        dfeSKorekta[sample(dfeSKorekta$nrw, N, replace = T), ]
+        dfeSKorekta[sample(dfeSKorekta$nrw, N, replace = T),]
       
       vsampleKorekta <- tablwzlKorekta$ranef
       names(vsampleKorekta) <- tablwzlKorekta$refNames
@@ -39,11 +38,12 @@ bootRes <-
       )
     }
     
-    if (inherits(predictor, 'EBLUP') == F & inherits(predictor, 'plugInLMM') == F & 
-    inherits(predictor, 'ebpLMMne') == F) {
+    if (inherits(predictor, 'EBLUP') == F &
+        inherits(predictor, 'plugInLMM') == F &
+        inherits(predictor, 'ebpLMMne') == F) {
       stop("wrong predictor")
     }
-      if (B < 1) {
+    if (B < 1) {
       stop("B1 must be > 0")
     }
     
@@ -55,7 +55,7 @@ bootRes <-
     }
     
     #step 3
-    YsimS <- matrix(Ysim[predictor$con == 1,], ncol = B)
+    YsimS <- matrix(Ysim[predictor$con == 1, ], ncol = B)
     
     class <- class(predictor)
     
@@ -138,19 +138,27 @@ bootRes <-
       })
     }
     
-    quantileNaN <- function (x, probs) {
-      if (sum(is.nan(x)) > 0) rep(NaN,length(probs)) else {quantile(x, probs)}}
     
     error <- matrix((predictorSim - thetaSim), ncol = B)
+    estQAPE <-
+      sapply(1:nrow(error), function(i)
+        quantileNaN(abs(error[i,]), probs = p))
+    estRMSE <-
+      sapply(1:nrow(error), function(i)
+        sqrt((sum(error[i,] ^ 2)) / length(error[i,])))
+    
+    error1 <- rbind(estQAPE, estRMSE)  %>% as.data.frame()
+    rownames(error1) <- NULL
+    error1$names <- c(paste0('QAPE', p), 'estRSME')
+    summary <-  melt(error1, id.vars = 'names')
+    names(summary) <- c('names', 'thetaFun', '"estAccur')
+    
     
     return(
       list(
-        estQAPE = sapply(1:nrow(error), function(i)
-          quantileNaN(abs(error[i, ]), probs = p)),
-        estRMSE = sapply(1:nrow(error), function(i)
-          sqrt((sum(
-            error[i, ] ^ 2
-          )) / length(error[i, ]))),
+        estQAPE = estQAPE,
+        estRMSE = estRMSE,
+        summary = summary,
         predictorSim = predictorSim,
         thetaSim = thetaSim,
         Ysim = Ysim,

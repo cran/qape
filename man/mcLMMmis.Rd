@@ -8,7 +8,7 @@
 mcLMMmis(Ypop, predictorLMMmis, predictorLMM, predictorLMM2, K, p, ratioR, ratioG)
 }
 \arguments{
-  \item{Ypop}{population values of the dependent variable.
+  \item{Ypop}{population values of the variable of interest (already transformed if necessary) which are used as the dependent variable in the population model.
 }
   \item{predictorLMMmis}{plugInLMM object, the predictor used to define the model assumed in the simulation study.
 }
@@ -69,6 +69,7 @@ mcLMMmis(Ypop, predictorLMMmis, predictorLMM, predictorLMM2, K, p, ratioR, ratio
 Tomasz Zadlo}
 
 \examples{
+
 data(invData) 
 # data from one period are considered: 
 invData2018 <- invData[invData$year == 2018,] 
@@ -95,7 +96,7 @@ weights.mis <- sqrt(newly_registered)
 # the population mean and the population total  
 thetaFun <- function(x) {c(mean(x), median(x))}
 
-predictorLMMmis<-plugInLMM(YS, fixed.part, random.part, reg, con, weights.mis, backTrans, thetaFun)
+predictorLMMmis <- plugInLMM(YS, fixed.part, random.part, reg,con,weights.mis,backTrans,thetaFun)
 predictorLMMmis$thetaP
 
 predictorLMM <- plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
@@ -104,7 +105,7 @@ predictorLMM$thetaP
 predictorLMM2 <- plugInLMM(YS, fixed.part, random.part2, reg, con, weights, backTrans, thetaFun)
 predictorLMM2$thetaP
 
-Ypop <- invData2018$investments
+Ypop <- log(invData2018$investments)
 
 # Monte Carlo simulation study under the misspecified model defined in predictorLMMmis 
 # with modified covariance matrices R and G

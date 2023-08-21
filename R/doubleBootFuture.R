@@ -20,10 +20,7 @@ function (predictor, B1, B2, p, q)
     cat(paste("non-positive definite estimated covariance matrix of random effects used at the first level - y is generated at the first level based on a model without random effects", "\n"))
   }
   
-  quantileNaN <- function (x, probs) {
-    if (sum(is.nan(x)) > 0) rep(NaN,length(probs)) else {quantile(x, probs)}}
-  
-  
+   
   number_of_predictors <- nrow(bootPar1$error)
   Ysim1 <- bootPar1$Ysim
   Ysim1S <- Ysim1[predictor$con == T, ]

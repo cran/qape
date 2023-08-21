@@ -60,6 +60,13 @@ bootParMis(predictorLMM, predictorLMMmis, B, p)
 Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 \examples{
+
+library(lme4)
+library(Matrix)
+library(mvtnorm)
+library(matrixcalc) 
+
+
 data(invData) 
 # data from one period are considered: 
 invData2018 <- invData[invData$year == 2018,] 
@@ -84,9 +91,9 @@ weights <- rep(1,N) # homoscedastic random components
 thetaFun <- function(x) {x[c(379,380)]}
 
 
-predictorLMM<-plugInLMM(YS,fixed.part,random.part,reg,con,weights,backTrans,thetaFun)
+predictorLMM<-plugInLMM(YS, fixed.part, random.part, reg, con, weights,backTrans,thetaFun)
 predictorLMM$thetaP
-predictorLMMmis<-plugInLMM(YS, fixed.part, random.part.mis, reg, con, weights, backTrans, thetaFun)
+predictorLMMmis <- plugInLMM(YS, fixed.part, random.part.mis, reg, con,weights,backTrans,thetaFun)
 predictorLMMmis$thetaP
 
 set.seed(123456)

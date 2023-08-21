@@ -26,6 +26,7 @@ bootResMis(predictorLMM, predictorLMMmis, B, p, correction)
 
 
 \details{Residual bootstrap considered by Carpener, Goldstein and Rasbash (2003), Chambers and Chandra (2013) and Thai et al. (2013) is used. We use model specification used in \emph{predictorLMM}. To generate one bootstrap realization of the population vector of the variable of interest: (i) from the sample vector of predicted random components the simple random sample with replacement of population size is drawn at random, (ii) from the vector of predicted random effects the simple random sample with replacement of size equal the number of random effects in the whole population is drawn at random. If {\emph{correction}} is {\emph{TRUE}}, then predicted random effects are transformed as described in Carpener, Goldstein and Rasbash (2003) in Section 3.2 and predicted random components as presented in Chambers and Chandra (2013) in Section 2.2. We use the MSE estimator defined as the mean of squared bootstrap errors considered by Rao and Molina (2015) p. 141 given by equation (6.2.22). The QAPE is a quantile of absolute prediction error which means that at least p100\% of realizations of absolute prediction errors are smaller or equal to QAPE. It is estimated as a quantile of absolute bootstrap errors as proposed by Zadlo (2017) in Section 2. The prediction accuracy of two predictors \emph{predictorLMM} and \emph{predictorLMMmis} is estimated under the model specified in \emph{predictorLMM}.}
+
 \value{
 \item{estQAPElmm}{estimated value/s of QAPE of \emph{predictorLMM} - number of rows is equal the number of orders of quantiles to be considered (declared in \emph{p}), number of columns is equal the number of predicted characteristics (declared in \emph{thetaFun}).}
 \item{estRMSElmm}{estimated value/s of RMSE of \emph{predictorLMM} (more than one value is computed if in
@@ -53,6 +54,11 @@ bootResMis(predictorLMM, predictorLMMmis, B, p, correction)
 Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 \examples{
+library(lme4)
+library(Matrix)
+library(mvtnorm)
+
+
 data(invData) 
 # data from one period are considered: 
 invData2018 <- invData[invData$year == 2018,] 
@@ -79,7 +85,7 @@ thetaFun <- function(x) {x[c(379:380)]}
 predictorLMM <- plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
 predictorLMM$thetaP
 
-predictorLMMmis<-plugInLMM(YS, fixed.part, random.part.mis, reg, con, weights, backTrans, thetaFun)
+predictorLMMmis <- plugInLMM(YS, fixed.part, random.part.mis, reg,con,weights,backTrans,thetaFun)
 predictorLMMmis$thetaP
 
 set.seed(123456)

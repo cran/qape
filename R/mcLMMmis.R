@@ -8,7 +8,8 @@ function(Ypop, predictorLMMmis, predictorLMM, predictorLMM2, K, p, ratioR, ratio
     predictorLMM2$backTrans <- function(x) x
   }
   
-  if (inherits(predictorLMM, "plugInLMM") == F | inherits(predictorLMMmis, "plugInLMM") == F) {
+  if (inherits(predictorLMM, 'plugInLMM') == F | inherits(predictorLMMmis, 'plugInLMM') == F | 
+    inherits(predictorLMM2, 'plugInLMM') == F) {
     stop("wrong predictor/predictors")
   }
   
@@ -32,12 +33,12 @@ function(Ypop, predictorLMMmis, predictorLMM, predictorLMM2, K, p, ratioR, ratio
     stop("'Ypop' object must be the population vector")
   }
   
-  if (!all.equal((Ypop[predictorLMM$con == 1]), predictorLMM$backTrans(predictorLMM$YS))){ 
-    stop("'Objects 'Ypop[predictorLMM$con == 1]' and 'predictorLMM$backTrans(predictorLMM$YS)' must be the same")
+   if (!all.equal((Ypop[predictorLMM$con == 1]), predictorLMM$YS)){ 
+    stop("Objects 'Ypop[predictorLMM$con == 1]' and 'predictorLMM$YS' must be the same")
   }
-  
-  if (!all.equal((Ypop[predictorLMM$con == 1]), predictorLMM2$backTrans(predictorLMM2$YS))){ 
-    stop("'Objects 'Ypop[predictorLMM$con]' and 'predictorLMM2$backTrans(predictorLMM2$YS)' must be the same")
+    
+  if (!all.equal((Ypop[predictorLMM$con == 1]), predictorLMM2$YS)){ 
+    stop("Objects 'Ypop[predictorLMM$con]' and 'predictorLMM2$YS' must be the same")
   }
 
   
@@ -85,8 +86,7 @@ function(Ypop, predictorLMMmis, predictorLMM, predictorLMM2, K, p, ratioR, ratio
                                                                                        predictorLMM2$thetaFun)$thetaP)
                                    return(thetaPpluginLMM2Mc)
                                  })
-  quantileNaN <- function (x, probs) {
-    if (sum(is.nan(x)) > 0) rep(NaN,length(probs)) else {quantile(x, probs)}}
+ 
   
   errorLMM <- matrix((predictorLMMMc - thetaMc), ncol = K)
   errorLMM2 <- matrix((predictorLMM2Mc - thetaMc), ncol = K)

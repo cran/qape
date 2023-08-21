@@ -98,6 +98,13 @@ estimator bounds assumed for \emph{estMSE_db_1_EF} and \emph{estMSE_db_telesc_EF
 Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 \examples{
+
+
+library(lme4)
+library(Matrix)
+library(mvtnorm)
+
+
 data(invData) 
 # data from one period are considered: 
 invData2018 <- invData[invData$year == 2018,] 

@@ -26,7 +26,6 @@ function(predictorLMM, predictorLMMmis, B, p, correction)
     return(predictorLMM$Xbeta + predictorLMM$Z %*% as.matrix(vsampleKorekta[colnames(predictorLMM$Z)]) + 
              dfesampKorekta$eSKorekta)
   }
-  
   if (inherits(predictorLMM, "plugInLMM") == F | inherits(predictorLMMmis, "plugInLMM") == F) {
     stop("wrong predictor/predictors")
   }
@@ -88,9 +87,7 @@ function(predictorLMM, predictorLMMmis, B, p, correction)
   })
 
   
-quantileNaN <- function (x, probs) {
-    if (sum(is.nan(x)) > 0) rep(NaN,length(probs)) else {quantile(x, probs)}}
-  
+
 errorLMM <- matrix((predictorLMMSim - thetaSim), ncol = B)
 errorLMMmis <- matrix((predictorLMMmisSim - thetaSim), ncol = B)
 return(list(estQAPElmm = sapply(1:nrow(errorLMM), function(i) quantileNaN(abs(errorLMM[i, 

@@ -96,6 +96,11 @@ doubleBootFuture(predictor, B1, B2, p, q)
 Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 \examples{
+library(lme4)
+library(Matrix)
+library(mvtnorm)
+
+
 data(invData) 
 # data from one period are considered: 
 invData2018 <- invData[invData$year == 2018,] 

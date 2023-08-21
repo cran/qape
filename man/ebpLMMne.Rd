@@ -76,6 +76,11 @@ Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 
 \examples{
+
+library(lme4)
+library(Matrix)
+
+
 ### Prediction of the subpopulation median 
 ### and the subpopulation standard deviation 
 ### based on the cross-sectional data

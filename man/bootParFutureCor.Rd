@@ -35,6 +35,7 @@ bootParFutureCor(predictor, B, p, ratioR, ratioG)
 \value{
 \item{estQAPE}{estimated value/s of QAPE - number of rows is equal to the number of orders of quantiles to be considered (declared in \emph{p}), number of columns is equal to the number of predicted characteristics (declared in \emph{thetaFun}).}
 \item{estRMSE}{estimated value/s of RMSE (more than one value is computed if in \emph{thetaFun} more than one population characteristic is defined).}
+\item{summary}{estimated accuracy measures for the predictor of characteristics defined in thetaFun.}
 \item{predictorSim}{bootstrapped values of the predictor/s.}
 \item{thetaSim}{bootstrapped values of the predicted population or subpopulation characteristic/s.}
 \item{Ysim}{simulated values of the (possibly tranformed) variable of interest.}
@@ -58,6 +59,14 @@ bootParFutureCor(predictor, B, p, ratioR, ratioG)
 Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 \examples{
+
+library(lme4)
+library(Matrix)
+library(mvtnorm)
+library(matrixcalc) 
+library(future.apply)
+
+
 data(invData) 
 # data from one period are considered: 
 invData2018 <- invData[invData$year == 2018,] 

@@ -100,6 +100,11 @@ estimator bounds assumed for \emph{estMSE_db_1_EF} and \emph{estMSE_db_telesc_EF
 Alicja Wolny-Dominiak, Tomasz Zadlo}
 
 \examples{
+library(lme4)
+library(Matrix)
+library(mvtnorm)
+
+
 data(invData) 
 # data from one period are considered: 
 invData2018 <- invData[invData$year == 2018,] 
@@ -127,7 +132,7 @@ set.seed(123456)
 predictorLMM <- plugInLMM(YS, fixed.part, random.part, reg, con, weights, backTrans, thetaFun)
 predictorLMM$thetaP
 
-predictorLMMmis<-plugInLMM(YS, fixed.part, random.part.mis, reg, con, weights, backTrans, thetaFun)
+predictorLMMmis <- plugInLMM(YS, fixed.part, random.part.mis, reg,con,weights,backTrans,thetaFun)
 predictorLMMmis$thetaP
 
 ### Estimation of prediction accuracy
